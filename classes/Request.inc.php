@@ -3,24 +3,19 @@
 require_once 'Response.inc.php';
 require_once 'Database.inc.php';
 
-class User extends Database
+class Request extends Database
 {
-	private $table = 'personas'; //asignamos como atributo el nombre de la tabla
+	private string $modelName = '';
+	private string $table = ''; //asignamos como atributo el nombre de la tabla
+	private array $allowedConditions_insert_update = array();
 
-	//indicamos los parámetros válidos para las peticiones get mediante un array
-	private $allowedConditions_get = array(
-		'id',
-		'nombre',
-		'disponible',
-		'page'
-	);
-	
-	//indicamos los parámetros válidos para las peticiones post y put mediante un array
-	private $allowedConditions_insert_update = array(
-		'nombre',
-		'disponible',
-		'imagen'
-	);
+	private array $allowedConditions_get = array();
+	public function __construct(string $table, array $allowedConditions_get, array $allowedConditions_insert_update)
+	{
+		$this->table = $table;
+		$this->allowedConditions_get = $allowedConditions_get;
+		$this->allowedConditions_insert_update = $allowedConditions_insert_update;
+	}
 
 	/**
 	 * Método validate: valida los parámetros recibidos que se usarán en BD
@@ -28,48 +23,49 @@ class User extends Database
 	 * @param [type] $data Los parámetros
 	 * @return [void | boolean] Si son válidos
 	 */
-	private function validate($data){
-		//si no existe el parámetro nombre...
-		if(!isset($data['nombre']) || empty($data['nombre'])){
-			//... genera la respuesta de error
-			$response = array(
-				'result' => 'error',
-				'details' => 'El campo nombre es obligatorio'
-			);
+	private function validate(array $data): bool
+	{
+		// //si no existe el parámetro nombre...
+		// if (!isset($data['nombre']) || empty($data['nombre'])) {
+		// 	//... genera la respuesta de error
+		// 	$response = array(
+		// 		'result' => 'error',
+		// 		'details' => 'El campo nombre es obligatorio'
+		// 	);
 
-			Response::result(400, $response);
-			exit;
-		}
-		//si existe el parámetro disponible y es diferente a 1 o 0....
-		if(isset($data['disponible']) && !($data['disponible'] == "1" || $data['disponible'] == "0")){
-			//... genera la respuesta de error
-			$response = array(
-				'result' => 'error',
-				'details' => 'El campo disponible debe ser del tipo boolean'
-			);
+		// 	Response::result(400, $response);
+		// 	exit;
+		// }
+		// //si existe el parámetro disponible y es diferente a 1 o 0....
+		// if (isset($data['disponible']) && !($data['disponible'] == "1" || $data['disponible'] == "0")) {
+		// 	//... genera la respuesta de error
+		// 	$response = array(
+		// 		'result' => 'error',
+		// 		'details' => 'El campo disponible debe ser del tipo boolean'
+		// 	);
 
-			Response::result(400, $response);
-			exit;
-		}
+		// 	Response::result(400, $response);
+		// 	exit;
+		// }
 		//si existe el parámetro imagen y no está vacío
-		if(isset($data['imagen']) && !empty($data['imagen'])){
+		if (isset($data['imagen']) && !empty($data['imagen'])) {
 			//separamos los metadatos de la propia codificación codificación
-			$img_array = explode(';base64,',$data['imagen']);
+			$img_array = explode(';base64,', $data['imagen']);
 			//obtenemos la extensión del archivo que nos mandan
-			$extension = strtoupper(explode('/',$img_array[0])[1]);
+			$extension = strtoupper(explode('/', $img_array[0])[1]);
 			//comprobamos si la extensión es válida...
-			if($extension != 'PNG' && $extension != 'JPEG' && $extension != 'JPG'){
+			if ($extension != 'PNG' && $extension != 'JPEG' && $extension != 'JPG') {
 				//genera la respuesta de error
 				$response = array(
 					'result' => 'error',
 					'details' => 'La extensión del archivo debe ser PNG/JPEG/JPG'
 				);
-	
+
 				Response::result(400, $response);
 				exit;
 
 			}
-	
+
 		}
 		return true;
 	}
@@ -83,11 +79,12 @@ class User extends Database
 	 * @param array $params Los parámetros get usados en BD
 	 * @return [array | void] Los usuarios de la BD
 	 */
-	public function get($params){
+	public function get($params)
+	{
 		//Recorremos los parámetros get
 		foreach ($params as $key => $param) {
 			//si los parámetros no están permitidos...
-			if(!in_array($key, $this->allowedConditions_get)){
+			if (!in_array($key, $this->allowedConditions_get)) {
 				//eliminamos los parámetros
 				unset($params[$key]);
 				//creamos el array de error
@@ -120,7 +117,7 @@ class User extends Database
 		//recorremos los parámetros
 		foreach ($params as $key => $param) {
 			//si no están permitidos
-			if(!in_array($key, $this->allowedConditions_insert_update)){
+			if (!in_array($key, $this->allowedConditions_insert_update)) {
 				//eliminamos los parámetros
 				unset($params[$key]);
 				//generamos la respuesta de error
@@ -128,30 +125,30 @@ class User extends Database
 					'result' => 'error',
 					'details' => 'Error en la solicitud'
 				);
-	
+
 				Response::result(400, $response);
 				exit;
 			}
 		}
 		//si son parámtros válidos
-		if($this->validate($params)){
+		if ($this->validate($params)) {
 			//si existe el parámetro imagen...
-			if(isset($params['imagen'])){
+			if (isset($params['imagen'])) {
 				//separamos los metadatos de la propia codificación codificación
-				$img_array = explode(';base64,',$params['imagen']);
+				$img_array = explode(';base64,', $params['imagen']);
 				//recuperamos el archivo enviado en base64
 				$img_file = $img_array[1];
 				//obtenemos la extensión del archivo que nos mandan
-				$extension = strtolower(explode('/',$img_array[0])[1]);
+				$extension = strtolower(explode('/', $img_array[0])[1]);
 				//generamos un id único
 				$name = uniqid();
 				//creamos la nueva ruta donde alojar la imagen
-				$path = dirname(__DIR__,1)."\public\img\\".$name.".".$extension;
+				$path = dirname(__DIR__, 1) . "\public\img\\" . $name . "." . $extension;
 				//ubicamos la imagen recibida en la ruta creada anteriormente
-				file_put_contents($path,base64_decode($img_file));
+				file_put_contents($path, base64_decode($img_file));
 				//actualizamos el nombre y la extensión de la imagen para guardar en BD
-				$params['imagen'] = $name.".".$extension;
-			
+				$params['imagen'] = $name . "." . $extension;
+
 			}
 			//insertamos en BD y obtenemos el id de la tupla insertada
 			return parent::insertDB($this->table, $params);
@@ -173,7 +170,7 @@ class User extends Database
 		//recorremos los parámetros
 		foreach ($params as $key => $parm) {
 			//si no son válidos
-			if(!in_array($key, $this->allowedConditions_insert_update)){
+			if (!in_array($key, $this->allowedConditions_insert_update)) {
 				//eliminamos
 				unset($params[$key]);
 				//generamos la respuesta de error y devolvemos
@@ -181,17 +178,17 @@ class User extends Database
 					'result' => 'error',
 					'details' => 'Error en la solicitud'
 				);
-	
+
 				Response::result(400, $response);
 				exit;
 			}
 		}
 		//si son parámetros válidos
-		if($this->validate($params)){
+		if ($this->validate($params)) {
 			//realizamos la actualización en BD pasando los parámetros y el id de la tupla
 			$affected_rows = parent::updateDB($this->table, $id, $params);
 			//si no se actualizó, generamos la respuesta
-			if($affected_rows==0){
+			if ($affected_rows == 0) {
 				$response = array(
 					'result' => 'error',
 					'details' => 'No hubo cambios'
@@ -208,12 +205,12 @@ class User extends Database
 	 *
 	 * @param int $id El id de la tupla a eliminar
 	 */
-	public function delete($id)	
+	public function delete($id)
 	{
 		//elimina la tupla y recibe el número de tuplas afectadas
 		$affected_rows = parent::deleteDB($this->table, $id);
 		//si es 0 significa que no eliminó ninguna tupla
-		if($affected_rows==0){
+		if ($affected_rows == 0) {
 			//genera la respuesta de error y la devuelve	
 			$response = array(
 				'result' => 'error',
@@ -226,4 +223,3 @@ class User extends Database
 	}
 }
 
-?>

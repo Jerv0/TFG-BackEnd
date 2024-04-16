@@ -1,13 +1,18 @@
 <?php
 //Importamos la clase Response y la clase User
 require_once 'classes/Response.inc.php';
-require_once 'classes/User.inc.php';
+require_once 'classes/Request.inc.php';
+require_once 'utils.php';
 
-//Creamos el objeto de la clase User para manejar el endpoint
-$user = new User();
+//para recoger de la url el modelo
+$model = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
+$array = validaciones($model);
+
+$request = new Request($model, $array["solicitud"]["get"], $array["solicitud"]["otro"]);
 //Comprobamos de qué tipo es la petición al endpoint
 switch ($_SERVER['REQUEST_METHOD']) {
+
 	//Método get
 	/**
 	 * Probar:
@@ -27,12 +32,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		//parámetros get y comprobamos:
 		//1º) si recibimos parámetros
 		//2º) si los parámetros están permitidos
-		$usuarios = $user->get($params);
+		$req = $request->get($params);
 
 		//Creamos la respuesta en caso de realizar una petición correcta
 		$response = array(
 			'result' => 'ok',
-			'usuarios' => $usuarios
+			'array' => $req
 		);
 
 		Response::result(200, $response); //devolvemos la respuesta a la petición correcta
@@ -47,7 +52,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 	 *     "nombre": "imagen subida",
 	 *     "imagen": "<Base64 Image source from https://www.base64encoder.io/image-to-base64-converter/>"
 	 *  }
-	 */	
+	 */
 	case 'POST':
 		//Recogemos los  parámetros pasados por la petición post
 		//decodificamos el json para convertirlo en array asociativo
@@ -55,7 +60,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		$params = json_decode(file_get_contents('php://input'), true);
 
 		//si no recibimos parámtros...
-		if(!isset($params)){
+		if (!isset($params)) {
 			//creamos el array de error y devolvemos la respuesta
 			$response = array(
 				'result' => 'error',
@@ -67,7 +72,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		}
 
 		//realizamos la inserción en BD de la petición
-		$insert_id = $user->insert($params);
+		$insert_id = $request->insert($params);
 
 		//creamos el array de ok y devolvemos la respuesta junto al nuevo id
 		$response = array(
@@ -88,15 +93,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
 	 *     "nombre": "nueva prueba",
 	 *     "disponible": "1"
 	 *  }
-	 */	
+	 */
 	case 'PUT':
 		//Recogemos los  parámetros pasados por la petición post
 		//decodificamos el json para convertirlo en array asociativo
 		//php://input equivale a $_POST para leer datos raw del cuerpo de la petición
 		$params = json_decode(file_get_contents('php://input'), true);
-
 		//Si no recibimos parámetros, no recibimos el parámetro id o id está vacío
-		if(!isset($params) || !isset($_GET['id']) || empty($_GET['id'])){
+		if (!isset($params) || !isset($_GET['id']) || empty($_GET['id'])) {
 			//creamos el array de error 
 			$response = array(
 				'result' => 'error',
@@ -107,23 +111,23 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			exit;
 		}
 		//si recibimos el parámtro id y es correcto, realizamos la actualización
-		$user->update($_GET['id'], $params);
+		$request->update($_GET['id'], $params);
 		//creamos el array de respuesta correcta
 		$response = array(
 			'result' => 'ok'
 		);
 		//y devolvemos
 		Response::result(200, $response);
-		
+
 		break;
 	//Método delete
 	/**
 	 * Probar:
 	 *  http://localhost/DWES/API/api/user?id=1092
-	 */	
+	 */
 	case 'DELETE':
 		//Si no existe el parámetro id o está vacío
-		if(!isset($_GET['id']) || empty($_GET['id'])){
+		if (!isset($_GET['id']) || empty($_GET['id'])) {
 			//creamos el array de error y devolvemos la respuesta	
 			$response = array(
 				'result' => 'error',
@@ -134,7 +138,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			exit;
 		}
 		//eliminamos el id de la base de datos
-		$user->delete($_GET['id']);
+		$request->delete($_GET['id']);
 		//creamos el array de respuesta correcta
 		$response = array(
 			'result' => 'ok'
@@ -153,4 +157,3 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 		break;
 }
-?>

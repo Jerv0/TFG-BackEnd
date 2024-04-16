@@ -8,10 +8,12 @@ class Database
 	/**
 	 * Método constructor: crea la conexión con BD
 	 */
-	public function __construct(){
-		$this->connection = new mysqli('127.0.0.1', 'root', '', 'api', '3306');
+	public function __construct()
+	{
+		//Recoge los valores del .env
+		$this->connection = new mysqli($_ENV["DB_IP"], $_ENV["DB_USERNAME"], $_ENV["DB_PASSWORD"], $_ENV["DB_DATABASE"], $_ENV["DB_PORT"]);
 
-		if($this->connection->connect_errno){
+		if ($this->connection->connect_errno) {
 			echo 'Error de conexión a la base de datos';
 			exit;
 		}
@@ -25,39 +27,39 @@ class Database
 	 * @param [string|null] $extra Los parámetros de la consulta select
 	 * @return array
 	 */
-	public function getDB($table, $extra = null)
+	public function getDB( string $table, $extra = null)
 	{
 		$page = 0; //página por defecto 0
 		$query = "SELECT * FROM $table"; //consulta por defecto
 
 		//si existe el parámetro page en la petición get
-		if(isset($extra['page'])){
+		if (isset($extra['page'])) {
 			//lo recogemos para hacer la consulta select
 			$page = $extra['page'];
 			unset($extra['page']);
 		}
 
 		//si recibimos parámetros en la petición get...
-		if($extra != null){
+		if ($extra != null) {
 			//concatenamos las condiciones a la consulta por defecto
 			$query .= ' WHERE';
 
 			foreach ($extra as $key => $condition) {
-				$query .= ' '.$key.' = "'.$condition.'"';
-				if($extra[$key] != end($extra)){
+				$query .= ' ' . $key . ' = "' . $condition . '"';
+				if ($extra[$key] != end($extra)) {
 					$query .= " AND ";
 				}
 			}
 		}
 
 		//si la página es mayor que 0, esto es, la recibimos por parámetro...
-		if($page > 0){
+		if ($page > 0) {
 			//limitamos la consulta a la paginación
-			$since = (($page-1) * $this->results_page);
+			$since = (($page - 1) * $this->results_page);
 			$query .= " LIMIT $since, $this->results_page";
 		}
 		//si no, devolvemos los primetos 5 resultados indicados en el atributo results_page
-		else{
+		else {
 			$query .= " LIMIT 0, $this->results_page";
 		}
 
@@ -87,7 +89,7 @@ class Database
 		$values .= implode('","', array_values($data)); //valores
 		$values .= '"';
 		//que se van a usar en la inserción a BD
-		$query = "INSERT INTO $table (".$fields.') VALUES ('.$values.')';
+		$query = "INSERT INTO $table (" . $fields . ') VALUES (' . $values . ')';
 		$this->connection->query($query);
 
 		return $this->connection->insert_id;
@@ -102,24 +104,24 @@ class Database
 	 * @return int Las tuplas afectadas
 	 */
 	public function updateDB($table, $id, $data)
-	{	
+	{
 		//generamos la sentencia sql
 		$query = "UPDATE $table SET ";
 		//con los parámetros recibidos por parámetro
 		foreach ($data as $key => $value) {
 			$query .= "$key = '$value'";
 			//si son más de un parámetro, concatenamos con la separación ,
-			if(sizeof($data) > 1 && $key != array_key_last($data)){
+			if (sizeof($data) > 1 && $key != array_key_last($data)) {
 				$query .= " , ";
 			}
 		}
 		//la tupla a actualizar
-		$query .= ' WHERE id = '.$id;
+		$query .= ' WHERE id = ' . $id;
 
 		$this->connection->query($query);
 
 		//si no modificamos ninguna tupla	
-		if(!$this->connection->affected_rows){
+		if (!$this->connection->affected_rows) {
 			return 0;
 		}
 
@@ -140,7 +142,7 @@ class Database
 		$query = "DELETE FROM $table WHERE id = $id";
 		$this->connection->query($query);
 		//Si no se elimina, devolvemos 0
-		if(!$this->connection->affected_rows){
+		if (!$this->connection->affected_rows) {
 			return 0;
 		}
 		//Devolvemos el nº de tuplas eliminadas
@@ -149,4 +151,3 @@ class Database
 }
 
 
-?>
