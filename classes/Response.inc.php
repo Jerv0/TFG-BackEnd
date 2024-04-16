@@ -12,13 +12,10 @@ class Response
 	 * @param array $response El array de datos que vamos a convertir a json
 	 * @return void
 	 */
-	public static function result($code, $response){
-
+	public static function result(int $code, array $response): void
+	{
 		header('Content-type: application/json');
 		http_response_code($code);
-
 		echo json_encode($response);
 	}
 }
-
-?>

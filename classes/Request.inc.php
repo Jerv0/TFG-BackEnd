@@ -10,7 +10,7 @@ class Request extends Database
 	private array $allowedConditions_insert_update = array();
 
 	private array $allowedConditions_get = array();
-	public function __construct(string $table, array $allowedConditions_get, array $allowedConditions_insert_update)
+	public function __construct(string $table, array $allowedConditions_get = [], array $allowedConditions_insert_update = [])
 	{
 		$this->table = $table;
 		$this->allowedConditions_get = $allowedConditions_get;
@@ -48,17 +48,18 @@ class Request extends Database
 		// 	exit;
 		// }
 		//si existe el parámetro imagen y no está vacío
+		//CAMBIAR PARA ARCHIVO PDF
 		if (isset($data['imagen']) && !empty($data['imagen'])) {
 			//separamos los metadatos de la propia codificación codificación
-			$img_array = explode(';base64,', $data['imagen']);
+			$file_array = explode(';base64,', $data['imagen']);
 			//obtenemos la extensión del archivo que nos mandan
-			$extension = strtoupper(explode('/', $img_array[0])[1]);
+			$extension = strtoupper(explode('/', $file_array[0])[1]);
 			//comprobamos si la extensión es válida...
-			if ($extension != 'PNG' && $extension != 'JPEG' && $extension != 'JPG') {
+			if ($extension != 'PDF') {
 				//genera la respuesta de error
 				$response = array(
 					'result' => 'error',
-					'details' => 'La extensión del archivo debe ser PNG/JPEG/JPG'
+					'details' => 'La extensión del archivo debe ser PDF'
 				);
 
 				Response::result(400, $response);
@@ -79,7 +80,7 @@ class Request extends Database
 	 * @param array $params Los parámetros get usados en BD
 	 * @return [array | void] Los usuarios de la BD
 	 */
-	public function get($params)
+	public function get(array $params): array
 	{
 		//Recorremos los parámetros get
 		foreach ($params as $key => $param) {
@@ -112,7 +113,7 @@ class Request extends Database
 	 * @param array $params Los parámetros get usados en BD
 	 * @return [int | void] Los usuarios de la BD
 	 */
-	public function insert($params)
+	public function insert(array $params): ?int
 	{
 		//recorremos los parámetros
 		foreach ($params as $key => $param) {
@@ -165,7 +166,7 @@ class Request extends Database
 	 * @param array $params Los parámetros get usados en BD
 	 * @return void Los usuarios de la BD
 	 */
-	public function update($id, $params)
+	public function update(int $id, array $params)
 	{
 		//recorremos los parámetros
 		foreach ($params as $key => $parm) {
@@ -205,7 +206,7 @@ class Request extends Database
 	 *
 	 * @param int $id El id de la tupla a eliminar
 	 */
-	public function delete($id)
+	public function delete(int $id)
 	{
 		//elimina la tupla y recibe el número de tuplas afectadas
 		$affected_rows = parent::deleteDB($this->table, $id);
