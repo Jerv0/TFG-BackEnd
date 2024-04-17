@@ -1,15 +1,22 @@
 <?php
-//Importamos la clase Response y la clase User
+
 require_once 'classes/Response.inc.php';
 require_once 'classes/Request.inc.php';
+//require_once 'classes/Authentication.inc.php';
 require_once 'utils.php';
+
+
+//Creamos un objeto de la clase Authentication para saber si el usuario
+//que usa el endpoint tiene los permisos para usar la API
+//$auth = new Authentication();
+//$auth->verify();//invocamos el método verify
 
 //para recoger de la url el modelo
 $model = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
-$array = validaciones($model);
+$fields = validations($model);
 
-$request = new Request($model, $array["solicitud"]["get"], $array["solicitud"]["otro"]);
+$request = new Request($model, $fields["solicitud"]["get"], $fields["solicitud"]["otro"]);
 //Comprobamos de qué tipo es la petición al endpoint
 switch ($_SERVER['REQUEST_METHOD']) {
 
@@ -27,7 +34,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
 	case 'GET':
 		//Recogemos los parámetros de la petición get
 		$params = $_GET;
-
 		//Llamamos al método get de la clase User, le pasamos los 
 		//parámetros get y comprobamos:
 		//1º) si recibimos parámetros
