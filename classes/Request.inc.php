@@ -82,6 +82,7 @@ class Request extends Database
 	 */
 	public function get(array $params): array
 	{
+		
 		//Recorremos los parámetros get
 		foreach ($params as $key => $param) {
 			//si los parámetros no están permitidos...
@@ -98,6 +99,7 @@ class Request extends Database
 				exit;
 			}
 		}
+		var_dump($params);
 		//llamamos 
 		$usuarios = parent::getDB($this->table, $params);
 

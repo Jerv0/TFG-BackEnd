@@ -1,33 +1,39 @@
 <?php
-/**
- * 
- * tengo que hacer una consulta a la base de datos para buscar el array de los campos y asi hacerlo full dinamico
- * 
- * 
- */
-//Meter todo aqui sobre validaciones de los modelos
+
 require_once ("classes/Database.inc.php");
 
+require_once __DIR__ . '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 function validations(string $model)
 {
     $request = new Database();
+    //Consulta para saber los campos
     $data = $request->getDB($model);
 
-    echoBonito($data);
-    //tendria que ver que me devuelve $datos y ahora si devuelve algo , meter el los array asociativos , todos los campos y en "otro" guardar todo menos el ID
-    
-    if (!empty($data)) {
+    $campos = array();
+    //Obtengo los campos de la base de datos 
+    foreach ($data[0] as $clave => $valor) {
+        array_push($campos, $clave);
+    }
+
+    //Si no esta vacio hace esto para tener todos los campos y en otro quito el campo ID que siempre deberia estar en la posicion 0 al tratarse de un ID
+    if (!empty($campos)) {
         $allowed = array(
             "solicitud" => array(
-                "get" => $data[0],
-                "otro" => $data[0],
+                "get" => $campos,
+                "otro" => $campos,
             )
         );
-        //Quitamos id ya que para un insert/update no lo necesitamos
-        //unset($datos['id']);
-        unset($allowed['solicitud']['otro']['id']);
+        unset($allowed['solicitud']['otro'][0]);  
 
+        //retornamos el array bidimensional con lo que necesitamos
         return $allowed;
     } else
         return null;

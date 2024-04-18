@@ -13,10 +13,14 @@ require_once 'utils.php';
 
 //para recoger de la url el modelo
 $model = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
-
+//Probar
+//$model = basename(dirname(parse_url($url, PHP_URL_PATH)));
+echo $model;
 $fields = validations($model);
+//devuelve el array o null asique...
+if (!is_null($fields))
+	$request = new Request($model, $fields["solicitud"]["get"], $fields["solicitud"]["otro"]);
 
-$request = new Request($model, $fields["solicitud"]["get"], $fields["solicitud"]["otro"]);
 //Comprobamos de qué tipo es la petición al endpoint
 switch ($_SERVER['REQUEST_METHOD']) {
 
