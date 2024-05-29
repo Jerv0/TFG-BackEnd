@@ -3,6 +3,9 @@
 require_once 'classes/Response.inc.php';
 require_once 'classes/PruebaJavi.inc.php';
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 //Creamos el objeto de la clase User para manejar el endpoint
 $user = new Prueba();
 
@@ -47,7 +50,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 	 *     "nombre": "imagen subida",
 	 *     "imagen": "<Base64 Image source from https://www.base64encoder.io/image-to-base64-converter/>"
 	 *  }
-	 */	
+	 */
 	case 'POST':
 		//Recogemos los  parámetros pasados por la petición post
 		//decodificamos el json para convertirlo en array asociativo
@@ -55,7 +58,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		$params = json_decode(file_get_contents('php://input'), true);
 
 		//si no recibimos parámtros...
-		if(!isset($params)){
+		if (!isset($params)) {
 			//creamos el array de error y devolvemos la respuesta
 			$response = array(
 				'result' => 'error',
@@ -88,7 +91,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 	 *     "nombre": "nueva prueba",
 	 *     "disponible": "1"
 	 *  }
-	 */	
+	 */
 	case 'PUT':
 		//Recogemos los  parámetros pasados por la petición post
 		//decodificamos el json para convertirlo en array asociativo
@@ -96,7 +99,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		$params = json_decode(file_get_contents('php://input'), true);
 
 		//Si no recibimos parámetros, no recibimos el parámetro id o id está vacío
-		if(!isset($params) || !isset($_GET['id']) || empty($_GET['id'])){
+		if (!isset($params) || !isset($_GET['id']) || empty($_GET['id'])) {
 			//creamos el array de error 
 			$response = array(
 				'result' => 'error',
@@ -114,16 +117,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		);
 		//y devolvemos
 		Response::result(200, $response);
-		
+
 		break;
 	//Método delete
 	/**
 	 * Probar:
 	 *  http://localhost/DWES/API/api/user?id=1092
-	 */	
+	 */
 	case 'DELETE':
 		//Si no existe el parámetro id o está vacío
-		if(!isset($_GET['id']) || empty($_GET['id'])){
+		if (!isset($_GET['id']) || empty($_GET['id'])) {
 			//creamos el array de error y devolvemos la respuesta	
 			$response = array(
 				'result' => 'error',
