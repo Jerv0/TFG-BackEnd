@@ -1,7 +1,7 @@
 <?php
 //Importamos la clase Response y la clase Database
 require_once 'Response.inc.php';
-require_once 'Database.inc.php';
+require_once 'DatabasePrueba.inc.php';
 
 class User extends Database
 {
