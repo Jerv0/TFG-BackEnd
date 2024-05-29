@@ -143,4 +143,3 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		Response::result(200, $response);
 		break;
 }
-?>

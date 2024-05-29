@@ -182,5 +182,3 @@ class Prueba extends Database
 		}
 	}
 }
-
-?>

@@ -52,4 +52,3 @@ class User extends Database
         return parent::deleteDB($table, $id, $id_key);
     }
 }
-?>

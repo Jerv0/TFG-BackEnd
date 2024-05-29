@@ -6,7 +6,8 @@ require_once 'classes/User.inc.php';
 //Creamos el objeto de la clase User para manejar el endpoint
 $user = new User();
 
-function getTable(){
+function getTable()
+{
 	// Si el parámetro 'table' está presente, lo asignamos a la variable $table
 	if (isset($_GET['table'])) {
 		$table = $_GET['table'];
@@ -24,25 +25,25 @@ switch ($_SERVER['REQUEST_METHOD']) {
 	case 'GET':  // *********************************************************************************
 		$table = getTable();
 		$params = [];
-	
+
 		// Recorremos los parámetros GET y los añadimos a $params, excepto 'table'
 		foreach ($_GET as $key => $value) {
 			if ($key !== 'table') {
 				$params[$key] = $value;
 			}
 		}
-	
+
 		// Llamamos al método get de la clase User, pasando los parámetros GET
 		$getBD = $user->get($table, $params);
-	
+
 		// Petición correcta
 		$response = array(
 			'result' => 'ok',
 			'usuarios' => $getBD
 		);
-	
+
 		Response::result(200, $response);
-	
+
 		break;
 
 	case 'POST': // *********************************************************************************
@@ -71,70 +72,58 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		// Obtener el primer elemento del array
 		$id_key = key($params);
 		$id_value = reset($params);
-        $id_value = "'".$id_value."'";  // POR QUE EL ID ES STRING
-			 
+		$id_value = "'" . $id_value . "'";  // POR QUE EL ID ES STRING
+
 		// Borrar el primer elemento del array
 		unset($params[$id_key]);
-			
+
 		$user->update($table, $id_value, $id_key, $params);
-		
+
 		// Petición correcta
 		$response = array(
 			'result' => 'ok'
 		);
 		Response::result(200, $response);
-			
+
 		break;
-		
 
-    case 'DELETE': // *********************************************************************************
-		
-        $table = getTable();
 
-        $id_key = '';
-        $id_value = '';
-        
-        // Buscar el parámetro que comience con 'id_'
-        foreach ($_GET as $key => $value) {
-            if (strpos($key, 'id_') === 0) {
-                $id_key = $key;
-                $id_value = "'".$value."'"; // POR QUE EL ID ES STRING
-                break;
-            }
-        }
-        
-        if(empty($id_key)) {
-            // Petición error
-            $response = array(
-                'result' => 'error',
-                'details' => 'Error en la solicitud: falta el parámetro "id"'
-            );
-        
-            Response::result(400, $response);
-            exit;
-        }
-        
-        $user->delete($table, $id_key, $id_value);
-        
-        // Petición correcta
-        $response = array(
-            'result' => 'ok',
-            'ID' => $id_value, 
-            'VALOR' => $id_key
-        );
-        
-        Response::result(200, $response);
-        break;
-        
+	case 'DELETE': // *********************************************************************************
 
-	default: // *********************************************************************************
+		$table = getTable();
 
-		// Petición error
+		$id_key = '';
+		$id_value = '';
+
+		// Buscar el parámetro que comience con 'id_'
+		foreach ($_GET as $key => $value) {
+			if (strpos($key, 'id_') === 0) {
+				$id_key = $key;
+				$id_value = "'" . $value . "'"; // POR QUE EL ID ES STRING
+				break;
+			}
+		}
+
+		if (empty($id_key)) {
+			// Petición error
+			$response = array(
+				'result' => 'error',
+				'details' => 'Error en la solicitud: falta el parámetro "id"'
+			);
+
+			Response::result(400, $response);
+			exit;
+		}
+
+		$user->delete($table, $id_key, $id_value);
+
+		// Petición correcta
 		$response = array(
-			'result' => 'error'
+			'result' => 'ok',
+			'ID' => $id_value,
+			'VALOR' => $id_key
 		);
 
-		Response::result(404, $response);
+		Response::result(200, $response);
 		break;
 }
-?>
