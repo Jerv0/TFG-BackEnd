@@ -6,6 +6,13 @@ require_once 'classes/PruebaJavi.inc.php';
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+// Permitir solicitudes desde cualquier origen
+header("Access-Control-Allow-Origin: *");
+// Permitir métodos GET, POST, PUT, DELETE y opciones preflights
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+// Permitir ciertos encabezados en las solicitudes
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Cache-Control ,api-key");
+
 //Creamos el objeto de la clase User para manejar el endpoint
 $user = new Prueba();
 
