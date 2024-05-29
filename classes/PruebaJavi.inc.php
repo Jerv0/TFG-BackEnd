@@ -3,7 +3,7 @@
 require_once 'Response.inc.php';
 require_once 'DatabasePrueba.inc.php';
 
-class User extends Database
+class Prueba extends Database
 {
 	private $table = 'usuario'; //asignamos como atributo el nombre de la tabla
 

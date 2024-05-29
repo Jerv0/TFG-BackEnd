@@ -4,7 +4,7 @@ require_once 'classes/Response.inc.php';
 require_once 'classes/PruebaJavi.inc.php';
 
 //Creamos el objeto de la clase User para manejar el endpoint
-$user = new User();
+$user = new Prueba();
 
 //Comprobamos de qué tipo es la petición al endpoint
 switch ($_SERVER['REQUEST_METHOD']) {
