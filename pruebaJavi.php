@@ -142,15 +142,5 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		//devolvemos la respuesta
 		Response::result(200, $response);
 		break;
-	//Si recibimos cualquier otro método diferente a get, post, put o delete...	
-	default:
-		//creamos el array de error
-		$response = array(
-			'result' => 'error'
-		);
-		//devolvemos la respuesta
-		Response::result(404, $response);
-
-		break;
 }
 ?>
