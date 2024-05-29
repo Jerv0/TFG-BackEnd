@@ -9,7 +9,7 @@ class Database
 	 * Método constructor: crea la conexión con BD
 	 */
 	public function __construct(){
-		$this->connection = new mysqli('127.0.0.1', 'root', '', 'api', '3306');
+		$this->connection = new mysqli('127.0.0.1', 'root', 'Root1.', 'tfg', '3306');
 
 		if($this->connection->connect_errno){
 			echo 'Error de conexión a la base de datos';
