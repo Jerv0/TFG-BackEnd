@@ -25,6 +25,8 @@ function getTable()
 	}
 }
 
+  
+
 //Comprobamos de qué tipo es la petición al endpoint
 switch ($_SERVER['REQUEST_METHOD']) {
 
@@ -57,18 +59,33 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		$params = json_decode(file_get_contents('php://input'), true);
 		$table = getTable();
 
-		$insertBD = $user->insert($table, $params);
+        // Verificar si es una solicitud de autenticación
+        if (isset($params['username']) && isset($params['password'])) {
+            $user_data = $user->autenticar('usuario', $params['username'], $params['password']);
+            if ($user_data) {
+                $response = array(
+                    'result' => 'ok',
+                    'user' => $user_data
+                );
+                Response::result(200, $response);
+            } else {
+                $response = array(
+                    'result' => 'error',
+                    'details' => 'Nombre de usuario o contraseña incorrectos'
+                );
+                Response::result(401, $response);
+            }
+        } else {
+            // Proceso de inserción normal
+            $insertBD = $user->insert($table, $params);
+            $response = array(
+                'result' => 'ok',
+                'insert_id' => $insertBD
+            );
+            Response::result(201, $response);
+        }
+        break;
 
-		// Petición correcta
-		$response = array(
-			'result' => 'ok',
-			'insert_id' => $insertBD
-		);
-
-		Response::result(201, $response);
-
-
-		break;
 
 	case 'PUT': // *********************************************************************************
 

@@ -22,6 +22,34 @@ class User extends Database
         }
     }
 
+    // Método para encriptar la contraseña
+    private function encriptarContrasenia($params)
+    {
+        if (isset($params['pass'])) {
+            $params['pass'] = password_hash($params['pass'], PASSWORD_BCRYPT);
+        }
+        return $params;
+    }
+
+    public function autenticar($table, $username, $password)
+    {
+        // Buscar el usuario por su nombre de usuario
+        $query = "SELECT * FROM $table WHERE username = ?";
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param('s', $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+
+        if ($user && password_verify($password, $user['pass'])) {
+            // La contraseña es correcta
+            return $user;
+        } else {
+            // La autenticación falló
+            return null;
+        }
+    }
+
     public function get($table, $params) {
         // Verificar los parámetros
         $this->verificarParametros($table, $params);
@@ -35,6 +63,9 @@ class User extends Database
         // Verificar los parámetros
         $this->verificarParametros($table, $params);
 
+        // Encriptar la contraseña
+        $params = $this->encriptarContraseña($params);
+
         // Todos los parámetros son válidos, proceder con la inserción
         return parent::insertDB($table, $params);
     }
@@ -42,6 +73,9 @@ class User extends Database
     public function update($table, $id, $id_key, $params) {
         // Verificar los parámetros
         $this->verificarParametros($table, $params);
+
+        // Encriptar la contraseña si está presente
+        $params = $this->encriptarContraseña($params);
 
         // Todos los parámetros son válidos, proceder con la actualización
         return parent::updateDB($table, $id, $id_key, $params);
