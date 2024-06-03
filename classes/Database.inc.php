@@ -93,7 +93,7 @@ class Database
 	public function deleteDB($table, $id, $id_clave)
 	{
 
-		$query = "DELETE FROM $table WHERE $id_clave = $id";
+		$query = "DELETE FROM $table WHERE id = $id";
 		$this->connection->query($query);
 		//Si no se elimina, devolvemos 0
 		if ($this->connection->affected_rows === 0) {
