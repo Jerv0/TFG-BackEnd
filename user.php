@@ -97,39 +97,24 @@ switch ($_SERVER['REQUEST_METHOD']) {
 	case 'DELETE': // *********************************************************************************
 
 		$table = getTable();
-
-		$id_key = '';
-		$id_value = '';
-
-		// Buscar el parámetro que comience con 'id_'
-		foreach ($_GET as $key => $value) {
-			if (strpos($key, 'id_') === 0) {
-				$id_key = $key;
-				$id_value = "'" . $value . "'"; // POR QUE EL ID ES STRING
-				break;
-			}
-		}
-
-		if (empty($id_key)) {
-			// Petición error
+		//Si no existe el parámetro id o está vacío
+		if (!isset($_GET['id']) || empty($_GET['id'])) {
+			//creamos el array de error y devolvemos la respuesta	
 			$response = array(
 				'result' => 'error',
-				'details' => 'Error en la solicitud: falta el parámetro "id"'
+				'details' => 'Error en la solicitud'
 			);
 
 			Response::result(400, $response);
 			exit;
 		}
-
-		$user->delete($table, $id_key, $id_value);
-
-		// Petición correcta
+		//eliminamos el id de la base de datos
+		$user->delete($table,$_GET['id']);
+		//creamos el array de respuesta correcta
 		$response = array(
-			'result' => 'ok',
-			'ID' => $id_value,
-			'VALOR' => $id_key
+			'result' => 'ok'
 		);
-
+		//devolvemos la respuesta
 		Response::result(200, $response);
 		break;
 }
