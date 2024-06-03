@@ -3,12 +3,11 @@
 class Database
 {
 	private $connection; //conexión a BD
-	private $results_page = 5; //nº de resultados por página
 
 	// Método constructor: crea la conexión con BD ****************************************
 	public function __construct()
 	{
-		$this->connection = new mysqli('127.0.0.1', 'root', '', 'tfg', '3306');
+		$this->connection = new mysqli('127.0.0.1', 'root', 'Root1.', 'tfg');
 
 		if ($this->connection->connect_errno) {
 			echo 'Error de conexión a la base de datos';
