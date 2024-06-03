@@ -8,7 +8,7 @@ class Database
 	// Método constructor: crea la conexión con BD ****************************************
 	public function __construct()
 	{
-		$this->connection = new mysqli('127.0.0.1', 'root', 'Root1.', 'tfg');
+		$this->connection = new mysqli('127.0.0.1', 'root', '', 'tfg', '3306');
 
 		if ($this->connection->connect_errno) {
 			echo 'Error de conexión a la base de datos';
@@ -90,13 +90,13 @@ class Database
 	}
 
 	// Método deleteDB: elimina la tupla indicada en el id ***************************************
-	public function deleteDB($table, $id)
+	public function deleteDB($table, $id, $id_clave)
 	{
-		//Eliminamos la tupla con el id indicado
-		$query = "DELETE FROM $table WHERE id = $id";
+
+		$query = "DELETE FROM $table WHERE $id_clave = '$id'";
 		$this->connection->query($query);
 		//Si no se elimina, devolvemos 0
-		if(!$this->connection->affected_rows){
+		if ($this->connection->affected_rows === 0) {
 			return 0;
 		}
 		//Devolvemos el nº de tuplas eliminadas
