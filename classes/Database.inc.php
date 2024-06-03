@@ -92,16 +92,41 @@ class Database
 	// Método deleteDB: elimina la tupla indicada en el id ***************************************
 	public function deleteDB($table, $id, $id_clave)
 	{
+		// Escapar identificadores para evitar inyección SQL
+		$table = $this->connection->real_escape_string($table);
+		$id_clave = $this->connection->real_escape_string($id_clave);
 
-		$query = "DELETE FROM $table WHERE id = $id";
-		$this->connection->query($query);
-		//Si no se elimina, devolvemos 0
-		if ($this->connection->affected_rows === 0) {
+		// Preparar la consulta SQL
+		$query = "DELETE FROM $table WHERE $id_clave = ?";
+
+		// Preparar la declaración
+		if ($stmt = $this->connection->prepare($query)) {
+			// Vincular parámetros
+			$stmt->bind_param('s', $id);
+
+			// Ejecutar la declaración
+			$stmt->execute();
+
+			// Verificar el número de filas afectadas
+			$affected_rows = $stmt->affected_rows;
+
+			// Cerrar la declaración
+			$stmt->close();
+
+			// Si no se elimina, devolvemos 0
+			if ($affected_rows === 0) {
+				return 0;
+			}
+
+			// Devolvemos el número de tuplas eliminadas
+			return $affected_rows;
+		} else {
+			// Manejo de errores si la preparación de la declaración falla
+			error_log("Error en la preparación de la declaración: " . $this->connection->error);
 			return 0;
 		}
-		//Devolvemos el nº de tuplas eliminadas
-		return $this->connection->affected_rows;
 	}
+
 
 	// Método obtenerColumnas: recupera las columnas de la tabla para verificar los parámetros
 	public function obtenerColumnas($table)
