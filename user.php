@@ -109,7 +109,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			exit;
 		}
 		//eliminamos el id de la base de datos
-		$user->delete($table,$_GET['id']);
+		$user->delete($table, $_GET['id']);
 		//creamos el array de respuesta correcta
 		$response = array(
 			'result' => 'ok'

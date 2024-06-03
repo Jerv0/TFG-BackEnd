@@ -6,7 +6,8 @@ require_once 'Database.inc.php';
 class User extends Database
 {
     // Función privada para verificar parámetros
-    private function verificarParametros($table, $params) {
+    private function verificarParametros($table, $params)
+    {
         // Verificar si los parámetros están dentro de las columnas de la tabla
         $columnas = $this->obtenerColumnas($table);
         foreach ($params as $key => $param) {
@@ -22,7 +23,8 @@ class User extends Database
         }
     }
 
-    public function get($table, $params) {
+    public function get($table, $params)
+    {
         // Verificar los parámetros
         $this->verificarParametros($table, $params);
 
@@ -31,7 +33,8 @@ class User extends Database
         return $usuarios;
     }
 
-    public function insert($table, $params) {
+    public function insert($table, $params)
+    {
         // Verificar los parámetros
         $this->verificarParametros($table, $params);
 
@@ -39,7 +42,8 @@ class User extends Database
         return parent::insertDB($table, $params);
     }
 
-    public function update($table, $id, $id_key, $params) {
+    public function update($table, $id, $id_key, $params)
+    {
         // Verificar los parámetros
         $this->verificarParametros($table, $params);
 
@@ -47,8 +51,9 @@ class User extends Database
         return parent::updateDB($table, $id, $id_key, $params);
     }
 
-    public function delete($table, $id, $id_key) {
+    public function delete($table, $id)
+    {
         // Para delete no se necesitan parámetros
-        return parent::deleteDB($table, $id, $id_key);
+        return parent::deleteDB($table, $id);
     }
 }
