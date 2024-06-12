@@ -3,7 +3,6 @@
 class Database
 {
 	private $connection; //conexión a BD
-	private $results_page = 5; //nº de resultados por página
 
 	// Método constructor: crea la conexión con BD ****************************************
 	public function __construct()
